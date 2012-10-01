@@ -131,8 +131,6 @@ p <- p + opts(title = 'Strong, Low Value Beta, a = 5, b = 45')
 ###################################################
 ### Fit models with different priors
 ###################################################
-N_samp=500
-Y_samp=26
 un <- getModelValues(.5,2,N_samp,Y_samp)
 plotModel(un, 'Uniform Prior, m = .5, n = 2')
 
