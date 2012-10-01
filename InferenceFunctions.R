@@ -137,7 +137,7 @@ getModelValues <- function(m,n,N_samp,Y_samp,a_in=(n*m),b_in=n*(1-m)){
 	b <- N_samp - Y_samp + b_in - 1
 	pr <- Prior(m,n,a=a_in,b=b_in)
 	lk <- Likelihood(N_samp,Y_samp)
-	po <- Posterior(m,n,N_samp,Y_samp,a=a,b=b_in)
+	po <- Posterior(m,n,N_samp,Y_samp,a=a_in,b=b_in)
 	mean_po <- MeanOfPosterior(m,n,N_samp,Y_samp,a=a_in,b=b_in)
 	mode_po <- ModeOfPosterior(m,n,N_samp,Y_samp,a=a_in,b=b_in)
 	sd_po <- StdDevOfPosterior(m,n,N_samp,Y_samp,a=a_in,b=b_in)
@@ -162,15 +162,26 @@ getModelValues <- function(m,n,N_samp,Y_samp,a_in=(n*m),b_in=n*(1-m)){
 ####################################################################
 ### Function: Plot model with list from getModelValues function
 ####################################################################
-plotModel <- function(model_list, plot_title, w=5, h=3, s=1.2, save_plot=F, file_name=NA){
+plotModel <- function(model_list, plot_title, w=8, h=5, s=1, save_plot=F, file_name=NA){
 	mean_po <- model_list[["InfDf"]][1,'mean_posterior']
 	mode_po <- model_list[["InfDf"]][1,'mode_posterior']
 	sd_po <- model_list[["InfDf"]][1,'stdev_posterior']
 	a_po <- model_list[["InfDf"]][1,'alpha_posterior']
 	b_po <- model_list[["InfDf"]][1,'beta_posterior']
+	ss_df <- data.frame(' '=c('Mean of Posterior','Mode of Posterior','Std Dev of Posterior'), ' '=round(c(mean_po,mode_po,sd_po),3))
+
+	yMax <- max(model_list[["PlotDf"]][model_list[["PlotDf"]]$y < Inf,'y'])
+	yMax <- yMax - 0.05*yMax
+	yMin <- yMax - 0.2*yMax
+	x1 <- ifelse(any(mean_po>.6,mean_po<.4),1-mean_po,0.7)
+	x2 <- ifelse(x1>.5,.95,0.05)
+	xMax <- max(c(x1,x2))
+	xMin <- min(c(x1,x2))
 	
-	plot_title <- paste(plot_title,': ',expression(alpha),'=',a_po,', ',expression(beta), '=', b_po, sep='')
+	summaryStats <- tableGrob(ss_df,show.rownames=F, show.colnames=F, show.vlines=T,
+	gpar.coltext=gpar(col='black',cex=0.5),gpar.corefill = gpar(fill = "white", col = "gray95"))
 	
+	plot_title <- paste(plot_title,', ',expression(alpha),'=',a_po,', ',expression(beta), '=', b_po, sep='')
 	p <- ggplot(data=model_list[["PlotDf"]],aes(x=x, y=y, 
 	color=Dist, linetype=Dist))
 	p <- p + geom_vline(xint=mean_po,color='darkblue',linetype=3)
@@ -182,6 +193,7 @@ plotModel <- function(model_list, plot_title, w=5, h=3, s=1.2, save_plot=F, file
 	p <- p + ylab(expression(paste('p(',theta,')', sep = '')))
 	p <- p + xlab(expression(theta))
 	p <- p + opts(legend.position='bottom')
+	p <- p + annotation_custom(grob=summaryStats, xmax=xMax, ymin=yMin, ymax=yMax)
 	if(save_plot==T){
 		ggsave(paste(file_name,'.png',sep=''),  width = w, height = h, scale = s)
 	}

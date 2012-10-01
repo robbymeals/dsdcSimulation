@@ -3,6 +3,7 @@ library(ggplot2)
 library(RColorBrewer)
 library(grid)
 library(xtable)
+library(gridExtra)
 plotCols <- c('#FFC4E9','#1F78B4')
 # General Bayesian Binom Prop Inference Functions
 source('InferenceFunctions.R') 
@@ -130,10 +131,12 @@ p <- p + opts(title = 'Strong, Low Value Beta, a = 5, b = 45')
 ###################################################
 ### Fit models with different priors
 ###################################################
+N_samp=500
+Y_samp=26
 un <- getModelValues(.5,2,N_samp,Y_samp)
 plotModel(un, 'Uniform Prior, m = .5, n = 2')
 
-bm <- getModelValues(.05,1,N_samp,Y_samp)
+bm <- getModelValues(.5,1,N_samp,Y_samp)
 plotModel(bm, 'Bimodal (Jeffreys) Prior, m = .5, n = 1')
 
 wh <- getModelValues(.95,10,N_samp,Y_samp)
